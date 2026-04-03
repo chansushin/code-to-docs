@@ -93,39 +93,39 @@ function buildCodeBlockHTML(code) {
         lines.pop();
     }
 
-    // Build HTML
+    // Common font style for all code spans
+    const fontStyle = `font-family: ${fontFamily}, monospace; font-size: ${fontSize};`;
+
+    // Build HTML using <p> tags (Google Docs friendly — no tables)
     let html = '';
 
     // Caption
     if (captionText) {
-        html += `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; font-size: ${fontSize}; color: ${theme.captionColor}; margin-bottom: 6px;">${escapeHtml(captionText)}</div>`;
+        html += `<p style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; font-size: ${fontSize}; color: ${theme.captionColor}; margin: 0 0 4px 0; padding: 0;">${escapeHtml(captionText)}</p>`;
     }
 
-    // Code block container
-    html += `<div style="background: ${theme.background}; border: 1px solid ${theme.borderColor}; border-radius: 6px; padding: 12px 16px; overflow-x: auto;">`;
-
-    // Table for line numbers + code
-    html += `<table style="border-collapse: collapse; border-spacing: 0; width: 100%;"><tbody>`;
+    // Code block: each line is a <p> with background color
+    const lineNumWidth = String(lines.length).length;
 
     lines.forEach((line, idx) => {
         const lineNum = idx + 1;
         const isHighlighted = highlightSet.has(lineNum);
-        const lineBg = isHighlighted ? `background: ${theme.highlightLineColor};` : '';
+        const bg = isHighlighted ? theme.highlightLineColor : theme.background;
 
-        html += `<tr style="${lineBg}">`;
+        let lineHtml = `<p style="margin: 0; padding: 2px 12px; background: ${bg}; ${fontStyle} line-height: 1.5; color: ${theme.textColor}; white-space: pre;">`;
 
-        // Line number column
+        // Line number as styled span
         if (showLineNums) {
-            html += `<td style="padding: 0 12px 0 0; text-align: right; white-space: nowrap; vertical-align: top; user-select: none; font-family: ${fontFamily}, monospace; font-size: ${fontSize}; line-height: 1.5; color: ${theme.lineNumberColor};">${lineNum}</td>`;
+            const numStr = String(lineNum).padStart(lineNumWidth, '\u00a0');
+            lineHtml += `<span style="${fontStyle} color: ${theme.lineNumberColor};">${numStr}\u00a0\u00a0</span>`;
         }
 
-        // Code content column
-        html += `<td style="padding: 0; white-space: pre; font-family: ${fontFamily}, monospace; font-size: ${fontSize}; line-height: 1.5; color: ${theme.textColor};">${line || ' '}</td>`;
+        // Code content — spans already have inline color styles
+        lineHtml += (line || '\u00a0');
 
-        html += `</tr>`;
+        lineHtml += `</p>`;
+        html += lineHtml;
     });
-
-    html += `</tbody></table></div>`;
 
     return html;
 }
