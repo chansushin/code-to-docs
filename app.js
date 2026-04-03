@@ -132,6 +132,7 @@ function buildCodeBlockHTML(code) {
 
 /**
  * Highlight code using highlight.js, returning HTML with <span> tags.
+ * Converts CSS class-based spans to inline styles for Google Docs compatibility.
  */
 function highlightCode(code, language) {
     if (language === 'plaintext') {
@@ -139,10 +140,55 @@ function highlightCode(code, language) {
     }
     try {
         const result = hljs.highlight(code, { language: language });
-        return result.value;
+        return inlineHighlightStyles(result.value);
     } catch (e) {
         return escapeHtml(code);
     }
+}
+
+/**
+ * Convert highlight.js class-based <span> tags to inline style attributes.
+ * e.g. <span class="hljs-keyword">def</span>
+ *   → <span style="color: #d73a49;">def</span>
+ */
+function inlineHighlightStyles(html) {
+    const themeKey = els.theme().value;
+    const theme = THEMES[themeKey] || THEMES['github-light'];
+    const tokens = theme.tokens || {};
+
+    return html.replace(/<span class="([^"]+)">/g, (match, classes) => {
+        // classes may be "hljs-title function_" → try compound first, then individual
+        const classList = classes.split(/\s+/);
+
+        // Try compound key like "hljs-title.function_"
+        let style = null;
+        if (classList.length > 1) {
+            const compoundKey = classList.join('.');
+            style = tokens[compoundKey];
+        }
+
+        // Fallback: try the first class
+        if (!style) {
+            for (const cls of classList) {
+                if (tokens[cls]) {
+                    style = tokens[cls];
+                    break;
+                }
+            }
+        }
+
+        if (style) {
+            let styleStr = '';
+            if (style.color) styleStr += `color: ${style.color};`;
+            if (style.fontStyle) styleStr += ` font-style: ${style.fontStyle};`;
+            if (style.fontWeight) styleStr += ` font-weight: ${style.fontWeight};`;
+            if (style.backgroundColor) styleStr += ` background-color: ${style.backgroundColor};`;
+            return `<span style="${styleStr}">`;
+        }
+
+        // No matching token — remove class, keep as plain span
+        return '<span>';
+    });
 }
 
 /**
