@@ -112,7 +112,7 @@ function buildCodeBlockHTML(code) {
         const isHighlighted = highlightSet.has(lineNum);
         const bg = isHighlighted ? theme.highlightLineColor : theme.background;
 
-        let lineHtml = `<p style="margin: 0; padding: 2px 12px; background: ${bg}; ${fontStyle} line-height: 1.5; color: ${theme.textColor}; white-space: pre;">`;
+        let lineHtml = `<p style="margin: 0; padding: 2px 12px; background: ${bg}; ${fontStyle} line-height: 1.15; color: ${theme.textColor}; white-space: pre;">`;
 
         // Line number as styled span
         if (showLineNums) {
