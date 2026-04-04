@@ -154,7 +154,7 @@ select:focus, input[type="text"]:focus {
     width: 100%;
     min-height: 200px;
     padding: 12px 14px;
-    font-family: Consolas, 'Nanum Gothic', 'Courier New', monospace;
+    font-family: 'Nanum Gothic', Consolas, 'Courier New', monospace;
     font-size: 13px;
     line-height: 1.5;
     border: 1px solid #d0d0d0;
@@ -283,6 +283,7 @@ select:focus, input[type="text"]:focus {
     border: 1px solid #e0e0e0;
     border-radius: 8px;
     overflow-x: auto;
+    font-family: 'Nanum Gothic', Consolas, 'Courier New', monospace;
 }
 
 .preview-area p {
@@ -321,6 +322,11 @@ select:focus, input[type="text"]:focus {
 
 .toast.hidden {
     display: block;
+}
+
+/* ===== Highlight.js ===== */
+.hljs {
+    font-family: 'Nanum Gothic', Consolas, 'Courier New', monospace;
 }
 
 /* ===== Responsive ===== */
