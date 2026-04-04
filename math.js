@@ -52,7 +52,8 @@ async function renderFormulaBlob(formula, displayMode) {
     tempContainer.style.padding = '16px';
     tempContainer.style.background = '#fff';
     tempContainer.style.color = '#000';
-    tempContainer.style.opacity = '0';
+    tempContainer.style.opacity = '1';
+    tempContainer.style.visibility = 'visible';
     tempContainer.style.zIndex = '-9999';
     tempContainer.style.pointerEvents = 'none';
     tempContainer.style.whiteSpace = 'nowrap';
