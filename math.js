@@ -88,6 +88,13 @@ async function renderFormulaBlob(formula, displayMode) {
             output: 'html',
         });
 
+        // Remove KaTeX display margins after rendering
+        const katexElements = wrapper.querySelectorAll('.katex, .katex-display');
+        katexElements.forEach(el => {
+            el.style.margin = '0';
+            el.style.padding = '0';
+        });
+
         await new Promise(requestAnimationFrame);
 
         const canvas = await html2canvas(wrapper, {
