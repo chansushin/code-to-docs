@@ -51,7 +51,8 @@ async function renderFormulaBlob(formula, displayMode) {
     tempContainer.style.padding = '16px';
     tempContainer.style.background = '#fff';
     tempContainer.style.color = '#000';
-    tempContainer.style.opacity = '0';
+    tempContainer.style.opacity = '1';
+    tempContainer.style.visibility = 'visible';
     tempContainer.style.zIndex = '-1';
     tempContainer.style.pointerEvents = 'none';
     document.body.appendChild(tempContainer);
@@ -64,7 +65,7 @@ async function renderFormulaBlob(formula, displayMode) {
         });
 
         const canvas = await html2canvas(tempContainer, {
-            backgroundColor: null,
+            backgroundColor: '#ffffff',
             scale: 2,
             useCORS: true,
         });
