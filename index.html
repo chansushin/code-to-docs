@@ -22,15 +22,26 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/rust.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <!-- KaTeX CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 </head>
 <body>
     <div class="container">
         <!-- Header -->
         <header class="header">
             <h1>Code → Docs</h1>
-            <span class="subtitle">Google Docs용 코드 블록 포맷터</span>
+            <span class="subtitle">Google Docs용 코드 블록 및 LaTeX 수식 포맷터</span>
         </header>
 
+        <!-- Mode Tabs -->
+        <div class="mode-tabs">
+            <button id="tab-code" class="mode-tab active" data-mode="code">Code</button>
+            <button id="tab-math" class="mode-tab" data-mode="math">LaTeX Math</button>
+        </div>
+
+        <!-- Code Mode Section -->
+        <div id="code-mode-content" class="mode-content active">
         <!-- Options Bar -->
         <div class="options-bar">
             <div class="option-group">
@@ -155,11 +166,48 @@
             </button>
         </div>
 
+        </div>
+        <!-- End Code Mode -->
+
+        <!-- Math Mode Section -->
+        <div id="math-mode-content" class="mode-content">
+            <div class="math-section">
+                <div class="section-header">
+                    <label>LaTeX Formula</label>
+                    <div class="code-actions">
+                        <button id="btn-clear-math" class="btn-small" title="Clear">Clear</button>
+                    </div>
+                </div>
+                <textarea id="math-input" spellcheck="false" placeholder="예: x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}"></textarea>
+            </div>
+
+            <!-- Math Preview -->
+            <div class="preview-section">
+                <div class="section-header">
+                    <label>Preview</label>
+                    <span class="preview-hint">Google Docs에 붙여넣을 때의 모습</span>
+                </div>
+                <div id="math-preview-area" class="preview-area math-preview"></div>
+            </div>
+
+            <!-- Math Action Buttons -->
+            <div class="action-buttons">
+                <button id="btn-copy-math-block" class="btn-primary">
+                    Copy Formula
+                </button>
+                <button id="btn-copy-math-inline" class="btn-secondary">
+                    Copy Inline Formula
+                </button>
+            </div>
+        </div>
+        <!-- End Math Mode -->
+
         <!-- Toast notification -->
         <div id="toast" class="toast hidden"></div>
     </div>
 
     <script src="themes.js"></script>
     <script src="app.js"></script>
+    <script src="math.js"></script>
 </body>
 </html>

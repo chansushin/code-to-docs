@@ -26,6 +26,14 @@ const els = {
 
 // ===== Initialization =====
 document.addEventListener('DOMContentLoaded', () => {
+    // Mode tab switching
+    document.querySelectorAll('.mode-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            const targetMode = tab.getAttribute('data-mode');
+            switchMode(targetMode);
+        });
+    });
+
     // Bind events
     els.codeInput().addEventListener('input', updatePreview);
     els.codeInput().addEventListener('paste', handlePaste);
@@ -571,4 +579,28 @@ function showToast(message) {
     setTimeout(() => {
         toast.classList.remove('show');
     }, 2500);
+}
+
+// ===== Mode Switching =====
+function switchMode(mode) {
+    const tabs = document.querySelectorAll('.mode-tab');
+    const contents = document.querySelectorAll('.mode-content');
+
+    tabs.forEach(tab => {
+        const tabMode = tab.getAttribute('data-mode');
+        if (tabMode === mode) {
+            tab.classList.add('active');
+        } else {
+            tab.classList.remove('active');
+        }
+    });
+
+    contents.forEach(content => {
+        const contentMode = content.id.replace('-mode-content', '');
+        if (contentMode === mode) {
+            content.classList.add('active');
+        } else {
+            content.classList.remove('active');
+        }
+    });
 }
