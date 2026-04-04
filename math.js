@@ -31,11 +31,11 @@ function updateMathPreview() {
     }
 
     try {
-        // Render with KaTeX
+        // Render with KaTeX to HTML (better Google Docs compatibility)
         const html = katex.renderToString(formula, {
             displayMode: true,
             throwOnError: false,
-            output: 'mathml',
+            output: 'html',
         });
         previewArea.innerHTML = html;
     } catch (error) {
@@ -52,16 +52,16 @@ async function copyMathBlock() {
     }
 
     try {
-        // Render to SVG and create HTML
-        const svg = katex.renderToString(formula, {
+        // Render to HTML (better Google Docs compatibility than MathML)
+        const html = katex.renderToString(formula, {
             displayMode: true,
-            output: 'mathml',
+            output: 'html',
         });
 
-        // Wrap SVG in a container for Google Docs compatibility
-        const html = `<div style="text-align: center; padding: 16px; background: #fff;">${svg}</div>`;
+        // Wrap in container for Google Docs
+        const fullHtml = `<div style="text-align: center; padding: 16px;">${html}</div>`;
 
-        const blob = new Blob([html], { type: 'text/html' });
+        const blob = new Blob([fullHtml], { type: 'text/html' });
         const item = new ClipboardItem({
             'text/html': blob,
             'text/plain': new Blob([formula], { type: 'text/plain' }),
@@ -87,15 +87,15 @@ async function copyMathInline() {
     }
 
     try {
-        // Render to inline (not display mode)
-        const svg = katex.renderToString(formula, {
+        // Render to inline HTML (better Google Docs compatibility)
+        const html = katex.renderToString(formula, {
             displayMode: false,
-            output: 'mathml',
+            output: 'html',
         });
 
-        const html = `<span style="padding: 0 2px;">${svg}</span>`;
+        const fullHtml = `<span style="padding: 0 2px;">${html}</span>`;
 
-        const blob = new Blob([html], { type: 'text/html' });
+        const blob = new Blob([fullHtml], { type: 'text/html' });
         const item = new ClipboardItem({
             'text/html': blob,
             'text/plain': new Blob([formula], { type: 'text/plain' }),
