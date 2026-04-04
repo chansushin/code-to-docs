@@ -93,15 +93,15 @@ function buildCodeBlockHTML(code) {
         lines.pop();
     }
 
-    // Common font style for all code spans
-    const fontStyle = `font-family: ${fontFamily}, monospace; font-size: ${fontSize};`;
+    // Common font style for all code spans (Nanum Gothic as Korean fallback)
+    const fontStyle = `font-family: ${fontFamily}, 'Nanum Gothic', monospace; font-size: ${fontSize};`;
 
     // Build HTML using <p> tags (Google Docs friendly — no tables)
     let html = '';
 
     // Caption
     if (captionText) {
-        html += `<p style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; font-size: ${fontSize}; color: ${theme.captionColor}; margin: 0 0 4px 0; padding: 0;">${escapeHtml(captionText)}</p>`;
+        html += `<p style="font-family: 'Nanum Gothic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; font-size: ${fontSize}; color: ${theme.captionColor}; margin: 0 0 4px 0; padding: 0;">${escapeHtml(captionText)}</p>`;
     }
 
     // Code block: each line is a <p> with background color
@@ -453,7 +453,7 @@ async function copyInline() {
     const firstLine = code.split('\n')[0];
     const highlighted = highlightCode(firstLine, els.language().value);
 
-    const html = `<span style="background: ${theme.background}; border: 1px solid ${theme.borderColor}; border-radius: 3px; padding: 2px 6px; font-family: ${fontFamily}, monospace; font-size: ${fontSize}; color: ${theme.textColor};">${highlighted}</span>`;
+    const html = `<span style="background: ${theme.background}; border: 1px solid ${theme.borderColor}; border-radius: 3px; padding: 2px 6px; font-family: ${fontFamily}, 'Nanum Gothic', monospace; font-size: ${fontSize}; color: ${theme.textColor};">${highlighted}</span>`;
 
     try {
         const blob = new Blob([html], { type: 'text/html' });
