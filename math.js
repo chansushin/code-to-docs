@@ -43,6 +43,45 @@ function updateMathPreview() {
     }
 }
 
+async function renderFormulaBlob(formula, displayMode) {
+    const tempContainer = document.createElement('div');
+    tempContainer.style.position = 'fixed';
+    tempContainer.style.left = '-9999px';
+    tempContainer.style.top = '0';
+    tempContainer.style.padding = '16px';
+    tempContainer.style.background = '#fff';
+    tempContainer.style.color = '#000';
+    tempContainer.style.opacity = '0';
+    tempContainer.style.zIndex = '-1';
+    tempContainer.style.pointerEvents = 'none';
+    document.body.appendChild(tempContainer);
+
+    try {
+        katex.render(formula, tempContainer, {
+            displayMode,
+            throwOnError: false,
+            output: 'html',
+        });
+
+        const canvas = await html2canvas(tempContainer, {
+            backgroundColor: null,
+            scale: 2,
+            useCORS: true,
+        });
+
+        const blob = await new Promise((resolve, reject) => {
+            canvas.toBlob((blob) => {
+                if (blob) resolve(blob);
+                else reject(new Error('Blob 생성 실패'));
+            }, 'image/png');
+        });
+
+        return blob;
+    } finally {
+        tempContainer.remove();
+    }
+}
+
 // ===== Copy Block Math =====
 async function copyMathBlock() {
     const formula = mathEls.mathInput().value;
@@ -52,26 +91,25 @@ async function copyMathBlock() {
     }
 
     try {
-        // Render to HTML (better Google Docs compatibility than MathML)
-        const html = katex.renderToString(formula, {
-            displayMode: true,
-            output: 'html',
-        });
-
-        // Wrap in container for Google Docs
-        const fullHtml = `<div style="text-align: center; padding: 16px;">${html}</div>`;
-
-        const blob = new Blob([fullHtml], { type: 'text/html' });
+        const blob = await renderFormulaBlob(formula, true);
         const item = new ClipboardItem({
-            'text/html': blob,
+            'image/png': blob,
             'text/plain': new Blob([formula], { type: 'text/plain' }),
         });
         await navigator.clipboard.write([item]);
-        showToast('수식이 복사되었습니다!');
+        showToast('수식이 이미지로 복사되었습니다!');
     } catch (err) {
+        console.error(err);
         try {
-            await navigator.clipboard.writeText(formula);
-            showToast('수식이 텍스트로 복사되었습니다');
+            const html = katex.renderToString(formula, { displayMode: true, output: 'html' });
+            const fullHtml = `<div style="text-align: center; padding: 16px;">${html}</div>`;
+            const blob = new Blob([fullHtml], { type: 'text/html' });
+            const item = new ClipboardItem({
+                'text/html': blob,
+                'text/plain': new Blob([formula], { type: 'text/plain' }),
+            });
+            await navigator.clipboard.write([item]);
+            showToast('수식을 HTML로 복사했습니다. Google Docs에서 이미지 복사가 지원되지 않습니다.');
         } catch (e) {
             showToast('복사 실패. 수동으로 복사해주세요.');
         }
@@ -87,25 +125,25 @@ async function copyMathInline() {
     }
 
     try {
-        // Render to inline HTML (better Google Docs compatibility)
-        const html = katex.renderToString(formula, {
-            displayMode: false,
-            output: 'html',
-        });
-
-        const fullHtml = `<span style="padding: 0 2px;">${html}</span>`;
-
-        const blob = new Blob([fullHtml], { type: 'text/html' });
+        const blob = await renderFormulaBlob(formula, false);
         const item = new ClipboardItem({
-            'text/html': blob,
+            'image/png': blob,
             'text/plain': new Blob([formula], { type: 'text/plain' }),
         });
         await navigator.clipboard.write([item]);
-        showToast('인라인 수식이 복사되었습니다!');
+        showToast('인라인 수식이 이미지로 복사되었습니다!');
     } catch (err) {
+        console.error(err);
         try {
-            await navigator.clipboard.writeText(formula);
-            showToast('수식이 텍스트로 복사되었습니다');
+            const html = katex.renderToString(formula, { displayMode: false, output: 'html' });
+            const fullHtml = `<span style="padding: 0 2px;">${html}</span>`;
+            const blob = new Blob([fullHtml], { type: 'text/html' });
+            const item = new ClipboardItem({
+                'text/html': blob,
+                'text/plain': new Blob([formula], { type: 'text/plain' }),
+            });
+            await navigator.clipboard.write([item]);
+            showToast('수식을 HTML로 복사했습니다. Google Docs에서 이미지 복사가 지원되지 않습니다.');
         } catch (e) {
             showToast('복사 실패. 수동으로 복사해주세요.');
         }
