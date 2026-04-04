@@ -487,7 +487,65 @@ function escapeHtml(text) {
 
 function wrapKorean(html) {
     const koreanFont = els.koreanFont().value;
-    return html.replace(/([가-힣]+)/g, `<span style="font-family: ${koreanFont};">$1</span>`);
+    const temp = document.createElement('template');
+    temp.innerHTML = html;
+
+    const walker = document.createTreeWalker(temp.content, NodeFilter.SHOW_TEXT, null, false);
+    const textNodes = [];
+    while (walker.nextNode()) {
+        textNodes.push(walker.currentNode);
+    }
+
+    for (const textNode of textNodes) {
+        const text = textNode.nodeValue;
+        const parts = text.split(/([가-힣]+(?:\s+[가-힣]+)*)/g);
+        if (parts.length === 1) continue;
+
+        const fragment = document.createDocumentFragment();
+        for (const part of parts) {
+            if (!part) continue;
+            if (/[가-힣]/.test(part)) {
+                const span = document.createElement('span');
+                span.style.fontFamily = koreanFont;
+                span.textContent = part;
+                fragment.appendChild(span);
+            } else {
+                fragment.appendChild(document.createTextNode(part));
+            }
+        }
+        textNode.parentNode.replaceChild(fragment, textNode);
+    }
+
+    function wrapSpaceNode(node) {
+        if (node.nodeType !== Node.TEXT_NODE) return;
+        if (!/^\s+$/.test(node.nodeValue)) return;
+
+        const prev = node.previousSibling;
+        const next = node.nextSibling;
+        if (!prev || !next) return;
+
+        const prevText = prev.textContent || '';
+        const nextText = next.textContent || '';
+        if (/[가-힣]$/.test(prevText) && /^[가-힣]/.test(nextText)) {
+            const span = document.createElement('span');
+            span.style.fontFamily = koreanFont;
+            span.textContent = node.nodeValue;
+            node.parentNode.replaceChild(span, node);
+        }
+    }
+
+    function traverse(node) {
+        for (let child = node.firstChild; child; child = child.nextSibling) {
+            if (child.nodeType === Node.TEXT_NODE) {
+                wrapSpaceNode(child);
+            } else {
+                traverse(child);
+            }
+        }
+    }
+
+    traverse(temp.content);
+    return temp.innerHTML;
 }
 
 function insertAtCursor(textarea, text) {
