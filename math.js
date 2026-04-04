@@ -45,16 +45,19 @@ function updateMathPreview() {
 
 async function renderFormulaBlob(formula, displayMode) {
     const tempContainer = document.createElement('div');
-    tempContainer.style.position = 'fixed';
-    tempContainer.style.left = '-9999px';
+    tempContainer.style.position = 'absolute';
+    tempContainer.style.left = '0';
     tempContainer.style.top = '0';
+    tempContainer.style.transform = 'translateX(-9999px)';
     tempContainer.style.padding = '16px';
     tempContainer.style.background = '#fff';
     tempContainer.style.color = '#000';
-    tempContainer.style.opacity = '1';
-    tempContainer.style.visibility = 'visible';
-    tempContainer.style.zIndex = '-1';
+    tempContainer.style.opacity = '0';
+    tempContainer.style.zIndex = '-9999';
     tempContainer.style.pointerEvents = 'none';
+    tempContainer.style.whiteSpace = 'nowrap';
+    tempContainer.style.width = 'auto';
+    tempContainer.style.height = 'auto';
     document.body.appendChild(tempContainer);
 
     try {
@@ -64,10 +67,13 @@ async function renderFormulaBlob(formula, displayMode) {
             output: 'html',
         });
 
+        await new Promise(requestAnimationFrame);
+
         const canvas = await html2canvas(tempContainer, {
             backgroundColor: '#ffffff',
             scale: 2,
             useCORS: true,
+            removeContainer: false,
         });
 
         const blob = await new Promise((resolve, reject) => {
