@@ -57,15 +57,32 @@ async function renderFormulaBlob(formula, displayMode) {
     tempContainer.style.visibility = 'visible';
     tempContainer.style.zIndex = '-9999';
     tempContainer.style.pointerEvents = 'none';
-    tempContainer.style.whiteSpace = 'nowrap';
     tempContainer.style.width = 'auto';
     tempContainer.style.height = 'auto';
     tempContainer.style.overflow = 'visible';
     tempContainer.style.display = 'inline-block';
+
+    const wrapper = document.createElement('div');
+    wrapper.style.display = 'inline-block';
+    wrapper.style.padding = '0';
+    wrapper.style.margin = '0';
+    wrapper.style.background = '#fff';
+    wrapper.style.color = '#000';
+    wrapper.style.overflow = 'visible';
+    wrapper.style.lineHeight = '1';
+    wrapper.innerHTML = `
+        <style>
+            .katex, .katex-display { margin: 0 !important; padding: 0 !important; }
+            .katex-display { display: inline-block !important; }
+            .katex * { margin: 0 !important; padding: 0 !important; }
+        </style>
+    `;
+
+    tempContainer.appendChild(wrapper);
     document.body.appendChild(tempContainer);
 
     try {
-        katex.render(formula, tempContainer, {
+        katex.render(formula, wrapper, {
             displayMode,
             throwOnError: false,
             output: 'html',
@@ -73,7 +90,7 @@ async function renderFormulaBlob(formula, displayMode) {
 
         await new Promise(requestAnimationFrame);
 
-        const canvas = await html2canvas(tempContainer, {
+        const canvas = await html2canvas(wrapper, {
             backgroundColor: '#ffffff',
             scale: 2,
             useCORS: true,
