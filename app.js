@@ -8,6 +8,7 @@ const els = {
     theme:          () => document.getElementById('theme'),
     fontSize:       () => document.getElementById('font-size'),
     fontFamily:     () => document.getElementById('font-family'),
+    koreanFont:     () => document.getElementById('korean-font'),
     caption:        () => document.getElementById('caption'),
     codeInput:      () => document.getElementById('code-input'),
     autoIndent:     () => document.getElementById('auto-indent'),
@@ -33,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     els.theme().addEventListener('change', onThemeChange);
     els.fontSize().addEventListener('change', updatePreview);
     els.fontFamily().addEventListener('change', updatePreview);
+    els.koreanFont().addEventListener('change', updatePreview);
     els.caption().addEventListener('input', updatePreview);
     els.showLineNums().addEventListener('change', updatePreview);
     els.highlightLines().addEventListener('input', updatePreview);
@@ -80,6 +82,7 @@ function buildCodeBlockHTML(code) {
     const language = els.language().value;
     const fontSize = els.fontSize().value + 'pt';
     const fontFamily = els.fontFamily().value;
+    const koreanFont = els.koreanFont().value;
     const captionText = els.caption().value.trim();
     const showLineNums = els.showLineNums().checked;
     const highlightSet = parseHighlightLines(els.highlightLines().value);
@@ -93,15 +96,15 @@ function buildCodeBlockHTML(code) {
         lines.pop();
     }
 
-    // Common font style for all code spans (Nanum Gothic as Korean fallback)
-    const fontStyle = `font-family: ${fontFamily}, 'Nanum Gothic', monospace; font-size: ${fontSize};`;
+    // Common font style for all code spans
+    const fontStyle = `font-family: ${fontFamily}, ${koreanFont}, monospace; font-size: ${fontSize};`;
 
     // Build HTML using <p> tags (Google Docs friendly — no tables)
     let html = '';
 
     // Caption
     if (captionText) {
-        html += `<p style="font-family: 'Nanum Gothic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; font-size: ${fontSize}; color: ${theme.captionColor}; margin: 0 0 4px 0; padding: 0;">${escapeHtml(captionText)}</p>`;
+        html += `<p style="font-family: ${koreanFont}, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 600; font-size: ${fontSize}; color: ${theme.captionColor}; margin: 0 0 4px 0; padding: 0;">${escapeHtml(captionText)}</p>`;
     }
 
     // Code block: each line is a <p> with background color
@@ -448,12 +451,13 @@ async function copyInline() {
     const theme = THEMES[themeKey] || THEMES['github-light'];
     const fontSize = els.fontSize().value + 'pt';
     const fontFamily = els.fontFamily().value;
+    const koreanFont = els.koreanFont().value;
 
     // Take first line only for inline
     const firstLine = code.split('\n')[0];
     const highlighted = highlightCode(firstLine, els.language().value);
 
-    const html = `<span style="background: ${theme.background}; border: 1px solid ${theme.borderColor}; border-radius: 3px; padding: 2px 6px; font-family: ${fontFamily}, 'Nanum Gothic', monospace; font-size: ${fontSize}; color: ${theme.textColor};">${highlighted}</span>`;
+    const html = `<span style="background: ${theme.background}; border: 1px solid ${theme.borderColor}; border-radius: 3px; padding: 2px 6px; font-family: ${fontFamily}, ${koreanFont}, monospace; font-size: ${fontSize}; color: ${theme.textColor};">${highlighted}</span>`;
 
     try {
         const blob = new Blob([html], { type: 'text/html' });
@@ -481,6 +485,11 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+function wrapKorean(html) {
+    const koreanFont = els.koreanFont().value;
+    return html.replace(/([가-힣]+)/g, `<span style="font-family: ${koreanFont};">$1</span>`);
+}
+
 function insertAtCursor(textarea, text) {
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
@@ -504,11 +513,4 @@ function showToast(message) {
     setTimeout(() => {
         toast.classList.remove('show');
     }, 2500);
-}
-
-/**
- * Wrap Korean text in spans with Nanum Gothic font.
- */
-function wrapKorean(html) {
-    return html.replace(/([가-힣]+)/g, '<span style="font-family: \'Nanum Gothic\';">$1</span>');
 }

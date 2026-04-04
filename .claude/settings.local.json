@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Claude_Preview__preview_start",
+      "Bash(where python:*)",
+      "Bash(where node:*)",
+      "Bash(where npx.cmd)",
+      "Bash(where npm.cmd)",
+      "Bash(gh auth:*)",
+      "Bash(where git:*)",
+      "Bash(git --version)",
+      "Bash(where gh.exe)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" --version)",
+      "Bash(\"/c/Program Files \\(x86\\)/GitHub CLI/gh.exe\" --version)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" auth status)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" auth login --web --git-protocol https)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" repo create code-to-docs --public --source=. --remote=origin --push)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" api repos/chansushin/code-to-docs/pages -X POST -f build_type=legacy -f source='{\"\"branch\"\":\"\"master\"\",\"\"path\"\":\"\"/\"\"}')",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" api repos/chansushin/code-to-docs/pages -X POST -f build_type=legacy -F source[branch]=master -F source[path]=\"/\")"
+    ]
+  }
+}
