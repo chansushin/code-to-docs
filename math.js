@@ -49,7 +49,8 @@ async function renderFormulaBlob(formula, displayMode) {
     tempContainer.style.left = '0';
     tempContainer.style.top = '0';
     tempContainer.style.transform = 'translateX(-9999px)';
-    tempContainer.style.padding = '16px';
+    tempContainer.style.padding = '0';
+    tempContainer.style.margin = '0';
     tempContainer.style.background = '#fff';
     tempContainer.style.color = '#000';
     tempContainer.style.opacity = '1';
@@ -59,6 +60,8 @@ async function renderFormulaBlob(formula, displayMode) {
     tempContainer.style.whiteSpace = 'nowrap';
     tempContainer.style.width = 'auto';
     tempContainer.style.height = 'auto';
+    tempContainer.style.overflow = 'visible';
+    tempContainer.style.display = 'inline-block';
     document.body.appendChild(tempContainer);
 
     try {
@@ -74,7 +77,7 @@ async function renderFormulaBlob(formula, displayMode) {
             backgroundColor: '#ffffff',
             scale: 2,
             useCORS: true,
-            removeContainer: false,
+            removeContainer: true,
         });
 
         const blob = await new Promise((resolve, reject) => {
