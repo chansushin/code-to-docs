@@ -136,13 +136,13 @@ function buildCodeBlockHTML(code) {
  */
 function highlightCode(code, language) {
     if (language === 'plaintext') {
-        return escapeHtml(code);
+        return wrapKorean(escapeHtml(code));
     }
     try {
         const result = hljs.highlight(code, { language: language });
-        return inlineHighlightStyles(result.value);
+        return wrapKorean(inlineHighlightStyles(result.value));
     } catch (e) {
-        return escapeHtml(code);
+        return wrapKorean(escapeHtml(code));
     }
 }
 
@@ -504,4 +504,11 @@ function showToast(message) {
     setTimeout(() => {
         toast.classList.remove('show');
     }, 2500);
+}
+
+/**
+ * Wrap Korean text in spans with Nanum Gothic font.
+ */
+function wrapKorean(html) {
+    return html.replace(/([가-힣]+)/g, '<span style="font-family: \'Nanum Gothic\';">$1</span>');
 }
