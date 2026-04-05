@@ -405,6 +405,27 @@ function handleKeydown(e) {
         return;
     }
 
+    // Handle Ctrl+Tab (move cursor left by one tab)
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Tab') {
+        e.preventDefault();
+        const textarea = els.codeInput();
+        const indentSize = parseInt(els.indentSize().value, 10);
+        const currentPos = textarea.selectionStart;
+
+        // Find the start of current line
+        const text = textarea.value;
+        const lineStart = text.lastIndexOf('\n', currentPos - 1) + 1;
+
+        // Calculate how many spaces to move left
+        const relativePos = currentPos - lineStart;
+        const spacesToMove = relativePos % indentSize || indentSize;
+
+        // Move cursor left by one tab stop
+        const newPos = Math.max(lineStart, currentPos - spacesToMove);
+        textarea.selectionStart = textarea.selectionEnd = newPos;
+        return;
+    }
+
     // Handle Tab key
     if (e.key === 'Tab') {
         e.preventDefault();
