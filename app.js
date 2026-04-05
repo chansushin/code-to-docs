@@ -414,25 +414,40 @@ function handleKeydown(e) {
         const indent = ' '.repeat(parseInt(els.indentSize().value, 10));
 
         if (start !== end) {
-            // Selection: move selected lines left by one tab
+            // Selection: move all selected lines left by one tab
             const value = textarea.value;
-            const lineStart = value.lastIndexOf('\n', start - 1) + 1;
-            const lineEnd = value.indexOf('\n', end);
-            const actualEnd = lineEnd === -1 ? value.length : lineEnd;
-            const selectedText = value.substring(lineStart, actualEnd);
-
-            // Move each line left by one tab
-            const newText = selectedText.split('\n').map(l => {
-                if (l.startsWith(indent)) {
-                    return l.substring(indent.length);
+            
+            // Find the start of the first selected line
+            const firstLineStart = value.lastIndexOf('\n', start - 1) + 1;
+            
+            // Find the end of the last selected line (before next newline or end of string)
+            let lastLineEnd = value.indexOf('\n', end);
+            if (lastLineEnd === -1) {
+                lastLineEnd = value.length;
+            }
+            
+            // Get all lines in the selection
+            const selectedText = value.substring(firstLineStart, lastLineEnd);
+            
+            // Process each line
+            const processedLines = selectedText.split('\n').map(line => {
+                if (line.startsWith(indent)) {
+                    return line.substring(indent.length);
+                } else if (line.trim().length > 0) {
+                    return line.replace(/^\s+/, '');
                 } else {
-                    return l.replace(/^\s+/, '');
+                    return line;  // keep empty lines as-is
                 }
-            }).join('\n');
-
-            textarea.value = value.substring(0, lineStart) + newText + value.substring(actualEnd);
-            textarea.selectionStart = lineStart;
-            textarea.selectionEnd = lineStart + newText.length;
+            });
+            
+            const newText = processedLines.join('\n');
+            
+            // Replace the text
+            textarea.value = value.substring(0, firstLineStart) + newText + value.substring(lastLineEnd);
+            
+            // Restore selection
+            textarea.selectionStart = firstLineStart;
+            textarea.selectionEnd = firstLineStart + newText.length;
         } else {
             // No selection: move current line left by one tab
             const value = textarea.value;
