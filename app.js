@@ -405,7 +405,7 @@ function handleKeydown(e) {
         return;
     }
 
-    // Handle Shift+Tab (dedent selected lines or move cursor left)
+    // Handle Shift+Tab (dedent current line or selected lines)
     if (e.shiftKey && e.key === 'Tab') {
         e.preventDefault();
         const textarea = els.codeInput();
@@ -431,22 +431,28 @@ function handleKeydown(e) {
             textarea.selectionStart = lineStart;
             textarea.selectionEnd = lineStart + newText.length;
         } else {
-            // No selection: move cursor left by one tab stop
-            const indentSize = parseInt(els.indentSize().value, 10);
+            // No selection: dedent current line
+            const value = textarea.value;
             const currentPos = textarea.selectionStart;
 
-            // Find the start of current line
-            const text = textarea.value;
-            const lineStart = text.lastIndexOf('\n', currentPos - 1) + 1;
+            // Find current line boundaries
+            const lineStart = value.lastIndexOf('\n', currentPos - 1) + 1;
+            const lineEnd = value.indexOf('\n', currentPos);
+            const actualEnd = lineEnd === -1 ? value.length : lineEnd;
+            const currentLine = value.substring(lineStart, actualEnd);
 
-            // Calculate how many spaces to move left
-            const relativePos = currentPos - lineStart;
-            const spacesToMove = relativePos % indentSize || indentSize;
+            // Dedent current line
+            let newLine;
+            if (currentLine.startsWith(indent)) {
+                newLine = currentLine.substring(indent.length);
+            } else {
+                newLine = currentLine.replace(/^\s+/, '');
+            }
 
-            // Move cursor left by one tab stop
-            const newPos = Math.max(lineStart, currentPos - spacesToMove);
-            textarea.selectionStart = textarea.selectionEnd = newPos;
+            textarea.value = value.substring(0, lineStart) + newLine + value.substring(actualEnd);
+            textarea.selectionStart = textarea.selectionEnd = lineStart + newLine.length - (currentLine.length - currentPos);
         }
+        updatePreview();
         return;
     }
 
