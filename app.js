@@ -405,24 +405,48 @@ function handleKeydown(e) {
         return;
     }
 
-    // Handle Shift+Tab (move cursor left by one tab)
+    // Handle Shift+Tab (dedent selected lines or move cursor left)
     if (e.shiftKey && e.key === 'Tab') {
         e.preventDefault();
         const textarea = els.codeInput();
-        const indentSize = parseInt(els.indentSize().value, 10);
-        const currentPos = textarea.selectionStart;
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const indent = ' '.repeat(parseInt(els.indentSize().value, 10));
 
-        // Find the start of current line
-        const text = textarea.value;
-        const lineStart = text.lastIndexOf('\n', currentPos - 1) + 1;
+        if (start !== end) {
+            // Selection: dedent selected lines
+            const value = textarea.value;
+            const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+            const lineEnd = value.indexOf('\n', end);
+            const actualEnd = lineEnd === -1 ? value.length : lineEnd;
+            const selectedText = value.substring(lineStart, actualEnd);
 
-        // Calculate how many spaces to move left
-        const relativePos = currentPos - lineStart;
-        const spacesToMove = relativePos % indentSize || indentSize;
+            // Dedent
+            const newText = selectedText.split('\n').map(l => {
+                if (l.startsWith(indent)) return l.substring(indent.length);
+                return l.replace(/^\s+/, '');
+            }).join('\n');
 
-        // Move cursor left by one tab stop
-        const newPos = Math.max(lineStart, currentPos - spacesToMove);
-        textarea.selectionStart = textarea.selectionEnd = newPos;
+            textarea.value = value.substring(0, lineStart) + newText + value.substring(actualEnd);
+            textarea.selectionStart = lineStart;
+            textarea.selectionEnd = lineStart + newText.length;
+        } else {
+            // No selection: move cursor left by one tab stop
+            const indentSize = parseInt(els.indentSize().value, 10);
+            const currentPos = textarea.selectionStart;
+
+            // Find the start of current line
+            const text = textarea.value;
+            const lineStart = text.lastIndexOf('\n', currentPos - 1) + 1;
+
+            // Calculate how many spaces to move left
+            const relativePos = currentPos - lineStart;
+            const spacesToMove = relativePos % indentSize || indentSize;
+
+            // Move cursor left by one tab stop
+            const newPos = Math.max(lineStart, currentPos - spacesToMove);
+            textarea.selectionStart = textarea.selectionEnd = newPos;
+        }
         return;
     }
 
