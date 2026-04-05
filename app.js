@@ -405,8 +405,8 @@ function handleKeydown(e) {
         return;
     }
 
-    // Handle Ctrl+Tab (move cursor left by one tab)
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Tab') {
+    // Handle Shift+Tab (move cursor left by one tab)
+    if (e.shiftKey && e.key === 'Tab') {
         e.preventDefault();
         const textarea = els.codeInput();
         const indentSize = parseInt(els.indentSize().value, 10);
