@@ -405,35 +405,61 @@ function handleKeydown(e) {
         return;
     }
 
-    // Handle Shift+Tab (move current line left by one tab)
+    // Handle Shift+Tab (move selected lines or current line left by one tab)
     if (e.shiftKey && e.key === 'Tab') {
         e.preventDefault();
         const textarea = els.codeInput();
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
         const indent = ' '.repeat(parseInt(els.indentSize().value, 10));
-        const value = textarea.value;
-        const currentPos = textarea.selectionStart;
 
-        // Find current line boundaries
-        const lineStart = value.lastIndexOf('\n', currentPos - 1) + 1;
-        const lineEnd = value.indexOf('\n', currentPos);
-        const actualEnd = lineEnd === -1 ? value.length : lineEnd;
-        const currentLine = value.substring(lineStart, actualEnd);
+        if (start !== end) {
+            // Selection: move selected lines left by one tab
+            const value = textarea.value;
+            const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+            const lineEnd = value.indexOf('\n', end);
+            const actualEnd = lineEnd === -1 ? value.length : lineEnd;
+            const selectedText = value.substring(lineStart, actualEnd);
 
-        // Move line left by one tab (remove indent from start)
-        let newLine;
-        if (currentLine.startsWith(indent)) {
-            newLine = currentLine.substring(indent.length);
+            // Move each line left by one tab
+            const newText = selectedText.split('\n').map(l => {
+                if (l.startsWith(indent)) {
+                    return l.substring(indent.length);
+                } else {
+                    return l.replace(/^\s+/, '');
+                }
+            }).join('\n');
+
+            textarea.value = value.substring(0, lineStart) + newText + value.substring(actualEnd);
+            textarea.selectionStart = lineStart;
+            textarea.selectionEnd = lineStart + newText.length;
         } else {
-            newLine = currentLine.replace(/^\s+/, '');
+            // No selection: move current line left by one tab
+            const value = textarea.value;
+            const currentPos = textarea.selectionStart;
+
+            // Find current line boundaries
+            const lineStart = value.lastIndexOf('\n', currentPos - 1) + 1;
+            const lineEnd = value.indexOf('\n', currentPos);
+            const actualEnd = lineEnd === -1 ? value.length : lineEnd;
+            const currentLine = value.substring(lineStart, actualEnd);
+
+            // Move line left by one tab
+            let newLine;
+            if (currentLine.startsWith(indent)) {
+                newLine = currentLine.substring(indent.length);
+            } else {
+                newLine = currentLine.replace(/^\s+/, '');
+            }
+
+            // Replace the line
+            textarea.value = value.substring(0, lineStart) + newLine + value.substring(actualEnd);
+
+            // Adjust cursor position
+            const cursorOffset = currentPos - lineStart;
+            const newCursorPos = lineStart + Math.max(0, cursorOffset - (currentLine.length - newLine.length));
+            textarea.selectionStart = textarea.selectionEnd = newCursorPos;
         }
-
-        // Replace the line
-        textarea.value = value.substring(0, lineStart) + newLine + value.substring(actualEnd);
-
-        // Adjust cursor position
-        const cursorOffset = currentPos - lineStart;
-        const newCursorPos = lineStart + Math.max(0, cursorOffset - (currentLine.length - newLine.length));
-        textarea.selectionStart = textarea.selectionEnd = newCursorPos;
 
         updatePreview();
         return;
