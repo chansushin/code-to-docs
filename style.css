@@ -194,7 +194,7 @@ select:focus, input[type="text"]:focus {
     width: 100%;
     min-height: 200px;
     padding: 12px 14px;
-    font-family: 'Nanum Gothic', 'Pretendard', 'Noto Sans KR', Consolas, 'Courier New', monospace;
+    font-family: Consolas, 'Courier New', 'Source Code Pro', 'Fira Code', 'JetBrains Mono', monospace;
     font-size: 13px;
     line-height: 1.5;
     border: 1px solid #d0d0d0;

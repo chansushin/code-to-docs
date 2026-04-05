@@ -2,6 +2,27 @@
  * Code → Docs  —  Main application logic
  */
 
+// ===== Undo Stack =====
+const undoStack = {
+    stack: [],
+    maxSize: 50,
+
+    push(text) {
+        this.stack.push(text);
+        if (this.stack.length > this.maxSize) {
+            this.stack.shift();
+        }
+    },
+
+    pop() {
+        return this.stack.length > 0 ? this.stack.pop() : null;
+    },
+
+    clear() {
+        this.stack = [];
+    }
+};
+
 // ===== DOM Elements =====
 const els = {
     language:       () => document.getElementById('language'),
@@ -36,8 +57,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Bind events
     els.codeInput().addEventListener('input', updatePreview);
+    els.codeInput().addEventListener('input', recordUndo);
     els.codeInput().addEventListener('paste', handlePaste);
-    els.codeInput().addEventListener('keydown', handleTab);
+    els.codeInput().addEventListener('keydown', handleKeydown);
     els.language().addEventListener('change', updatePreview);
     els.theme().addEventListener('change', onThemeChange);
     els.fontSize().addEventListener('change', updatePreview);
@@ -369,8 +391,21 @@ function reindentCode() {
     showToast('Indentation fixed');
 }
 
-// ===== Tab key support in textarea =====
-function handleTab(e) {
+// ===== Undo support and Tab key handling =====
+function recordUndo(e) {
+    const textarea = els.codeInput();
+    undoStack.push(textarea.value);
+}
+
+function handleKeydown(e) {
+    // Handle Ctrl+Z (or Cmd+Z on Mac)
+    if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+        e.preventDefault();
+        performUndo();
+        return;
+    }
+
+    // Handle Tab key
     if (e.key === 'Tab') {
         e.preventDefault();
         const textarea = els.codeInput();
@@ -409,6 +444,16 @@ function handleTab(e) {
             textarea.selectionEnd = lineStart + newText.length;
         }
         updatePreview();
+    }
+}
+
+function performUndo() {
+    const prevState = undoStack.pop();
+    if (prevState !== null) {
+        const textarea = els.codeInput();
+        textarea.value = prevState;
+        updatePreview();
+        showToast('Undo');
     }
 }
 
